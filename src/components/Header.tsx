@@ -18,6 +18,7 @@ const Header: React.FC = () => {
         <nav className="flex items-center gap-6">
           <NavLink to="/" className={({ isActive }) => (isActive ? "text-primary" : "text-foreground/80 hover:text-foreground")}>Home</NavLink>
           <NavLink to="/incubatees" className={({ isActive }) => (isActive ? "text-primary" : "text-foreground/80 hover:text-foreground")}>Incubatees</NavLink>
+          <NavLink to="/admin" className={({ isActive }) => (isActive ? "text-primary" : "text-foreground/80 hover:text-foreground")}>Admin</NavLink>
           <div className="relative">
             <CartSheet />
             {count > 0 && (
