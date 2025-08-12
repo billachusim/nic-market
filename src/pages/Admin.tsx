@@ -46,6 +46,10 @@ const Admin: React.FC = () => {
   const [pForm, setPForm] = useState<ProductRow>({ id: "", name: "", price: 0, image: "", category: "", incubatee_slug: "" });
 
   useEffect(() => {
+    if (!supabase) {
+      console.warn("Supabase not configured; admin features will be disabled.");
+      return;
+    }
     // Auth session
     const init = async () => {
       try {
@@ -61,7 +65,7 @@ const Admin: React.FC = () => {
       setUserEmail(session?.user?.email ?? null);
     });
     return () => {
-      sub.subscription.unsubscribe();
+      sub?.subscription?.unsubscribe?.();
     };
   }, []);
 
@@ -99,11 +103,13 @@ const Admin: React.FC = () => {
   };
 
   const signOut = async () => {
+    if (!ensureReady()) return;
     await supabase.auth.signOut();
   };
 
   const createIncubatee = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ensureReady()) return;
     if (!iForm.slug || !iForm.name) return toast({ title: "Missing fields", description: "Slug and name are required" });
     const payload: IncubateeRow = {
       slug: iForm.slug.trim(),
@@ -123,6 +129,7 @@ const Admin: React.FC = () => {
   };
 
   const deleteIncubatee = async (slug: string) => {
+    if (!ensureReady()) return;
     const { error } = await supabase.from("incubatees").delete().eq("slug", slug);
     if (error) return toast({ title: "Delete failed", description: error.message });
     toast({ title: "Deleted", description: slug });
@@ -131,6 +138,7 @@ const Admin: React.FC = () => {
 
   const createProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!ensureReady()) return;
     if (!pForm.id || !pForm.name || !pForm.incubatee_slug) return toast({ title: "Missing fields", description: "ID, name, incubatee are required" });
     const payload: ProductRow = { ...pForm, price: Number(pForm.price) };
     const { error } = await supabase.from("products").upsert(payload, { onConflict: "id" });
@@ -141,6 +149,7 @@ const Admin: React.FC = () => {
   };
 
   const deleteProduct = async (id: string) => {
+    if (!ensureReady()) return;
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) return toast({ title: "Delete failed", description: error.message });
     toast({ title: "Deleted", description: id });
@@ -148,6 +157,7 @@ const Admin: React.FC = () => {
   };
 
   const seedData = async () => {
+    if (!ensureReady()) return;
     // Seed incubatees
     const incRows: IncubateeRow[] = seedIncubatees.map((i) => ({
       slug: i.slug,
